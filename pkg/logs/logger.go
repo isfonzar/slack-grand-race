@@ -12,6 +12,8 @@ type (
 		Info(args ...interface{})
 		Warn(args ...interface{})
 		Error(args ...interface{})
+		Fatal(args ...interface{})
+		Panic(args ...interface{})
 		Debugw(template string, args ...interface{})
 		Infow(template string, args ...interface{})
 		Warnw(template string, args ...interface{})
