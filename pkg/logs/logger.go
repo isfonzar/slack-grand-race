@@ -8,16 +8,24 @@ import (
 type (
 	//Logger is the interface used by the logger client.
 	Logger interface {
+		Debug(args ...interface{})
 		Info(args ...interface{})
-		Infow(msg string, keysAndValues ...interface{})
 		Warn(args ...interface{})
-		Warnw(msg string, keysAndValues ...interface{})
+		Error(args ...interface{})
+		Debugw(template string, args ...interface{})
+		Infow(template string, args ...interface{})
+		Warnw(template string, args ...interface{})
+		Errorw(template string, args ...interface{})
 	}
 )
 
 //New creates and returns a new Logger instance.
-func New() (Logger, error) {
-	config := zap.NewProductionConfig()
+func New(isDebug bool) (Logger, error) {
+	config := zap.NewDevelopmentConfig()
+	if !isDebug {
+		config = zap.NewProductionConfig()
+	}
+
 	config.OutputPaths = []string{"stdout"}
 	logger, err := config.Build()
 	if err != nil {

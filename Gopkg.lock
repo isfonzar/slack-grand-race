@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:361427a0338508b225b330a5818ce4b0a6a599f55f04a6d8a76e708bbeb60812"
-  name = "github.com/isfonzar/instafarm"
-  packages = ["pkg/logs"]
+  digest = "1:edbef42561faa44c19129b68d1e109fbc1647f63239250391eadc8d0e7c9f669"
+  name = "github.com/kelseyhightower/envconfig"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "083c605a2ab4a9688ed2eee57b7ebb515c6e564e"
+  revision = "f611eb38b3875cc3bd991ca91c51d06446afa14c"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -52,7 +52,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/isfonzar/instafarm/pkg/logs",
+    "github.com/kelseyhightower/envconfig",
     "github.com/pkg/errors",
     "go.uber.org/zap",
   ]
