@@ -1,0 +1,10 @@
+version: '3'
+services:
+  slack-grand-race:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    volumes:
+      - .:/go/src/github.com/isfonzar/slack-grand-race
+    env_file:
+      - .env

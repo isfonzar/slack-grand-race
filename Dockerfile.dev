@@ -1,0 +1,21 @@
+FROM golang:1.12-alpine AS builder
+
+ENV APP_DIR /go/src/github.com/isfonzar/slack-grand-race
+
+COPY . ${APP_DIR}
+WORKDIR ${APP_DIR}
+
+RUN apk update && apk add make git alpine-sdk
+
+ENV GO111MODULE off
+
+RUN go get -u -v github.com/githubnemo/CompileDaemon
+RUN go get -u -v github.com/DATA-DOG/godog/cmd/godog
+
+#Install dep
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+# Download deps
+RUN make deps
+
+CMD CompileDaemon -build="make build" -command="out/sgr"
