@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/nlopes/slack"
 
 	"github.com/isfonzar/slack-grand-race/internal/config"
@@ -11,11 +12,13 @@ import (
 func main() {
 	fmt.Println("Starting Slack Grand Race")
 
+	// Configuration
 	conf, err := config.LoadEnv()
 	if err != nil {
 		panic(err)
 	}
 
+	// Logger
 	log, err := logs.New(conf.Debug)
 	if err != nil {
 		panic(err)
@@ -25,6 +28,7 @@ func main() {
 	fields := []interface{}{"config", conf}
 	log.Debugw("Configs loaded", fields...)
 
+	// Slack
 	// @todo improve and abstract this whole slack thingy
 	api := slack.New(conf.SlackToken)
 	rtm := api.NewRTM()

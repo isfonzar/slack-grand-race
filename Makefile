@@ -26,7 +26,7 @@ build:
 
 deps:
 	@printf "$(OK_COLOR)==> Downloading dependencies$(NO_COLOR)\n"
-	@dep ensure
+	@docker-compose exec slack-grand-race dep ensure
 
 dev-up:
 	@docker-compose up -d
@@ -40,3 +40,4 @@ help:
 	@echo "List of available targets:"
 	@echo "  build                      - Builds the binary and outputs it to out/folder    "
 	@echo "  dev-up                     - Spins up the development containers"
+	@echo "  deps                       - Downloads dependencies"
