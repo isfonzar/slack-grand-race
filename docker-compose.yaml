@@ -8,3 +8,12 @@ services:
       - .:/go/src/github.com/isfonzar/slack-grand-race
     env_file:
       - .env
+
+  postgres:
+    image: postgres:9.6
+    ports:
+      - '8041:5432'
+    env_file:
+      - .env
+    environment:
+      LC_ALL: C.UTF-8
