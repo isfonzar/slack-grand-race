@@ -16,6 +16,6 @@ RUN go get -u -v github.com/DATA-DOG/godog/cmd/godog
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 # Download deps
-RUN make deps
+dep ensure
 
 CMD CompileDaemon -build="make build" -command="out/sgr"

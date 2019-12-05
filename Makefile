@@ -22,7 +22,7 @@ WARN_COLOR=\033[33;01m
 
 build:
 	@printf "$(OK_COLOR)==> Building$(NO_COLOR)\n"
-	@go build -o ${BUILD_DIR}/${BINARY} ${GO_LINKER_FLAGS} main.go
+	@go build -o ${BUILD_DIR}/${BINARY} ${GO_LINKER_FLAGS} cmd/slacoins/main.go
 
 deps:
 	@printf "$(OK_COLOR)==> Downloading dependencies$(NO_COLOR)\n"
