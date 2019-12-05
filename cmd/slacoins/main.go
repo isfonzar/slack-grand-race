@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/golang-migrate/migrate"
+	_ "github.com/golang-migrate/migrate/database/postgres"
+	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/nlopes/slack"
 
 	"github.com/isfonzar/slack-grand-race/internal/config"
@@ -27,6 +30,17 @@ func main() {
 
 	fields := []interface{}{"config", conf}
 	log.Debugw("Configs loaded", fields...)
+
+	// Running migrations
+	m, err := migrate.New(
+		"file://db/migrations",
+		fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable", conf.DB.User, conf.DB.Password, conf.DB.Host, conf.DB.DatabaseName))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
 
 	// Slack
 	// @todo improve and abstract this whole slack thingy

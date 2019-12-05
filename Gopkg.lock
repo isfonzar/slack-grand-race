@@ -2,6 +2,20 @@
 
 
 [[projects]]
+  digest = "1:692b29784ba0a25c33a77cb4c2594e2ffc1e72fc66e17e87503e03a29cb227c5"
+  name = "github.com/golang-migrate/migrate"
+  packages = [
+    ".",
+    "database",
+    "database/postgres",
+    "source",
+    "source/file",
+  ]
+  pruneopts = "UT"
+  revision = "4937cd088f7c7193ee59b319c1c2caa7482aae8e"
+  version = "v3.5.4"
+
+[[projects]]
   digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -16,6 +30,18 @@
   pruneopts = "UT"
   revision = "f611eb38b3875cc3bd991ca91c51d06446afa14c"
   version = "v1.3.0"
+
+[[projects]]
+  digest = "1:12cb143f2148bf54bcd9fe622abac17325e85eeb1d84b8ec6caf1c80232108fd"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+    "scram",
+  ]
+  pruneopts = "UT"
+  revision = "3427c32cb71afc948325f299f040e53c1dd78979"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:7711bc85fa91b919713feda232ffe0bd4ebb0e8426b9c0de6c6f476e0eb9b7c2"
@@ -71,6 +97,9 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/golang-migrate/migrate",
+    "github.com/golang-migrate/migrate/database/postgres",
+    "github.com/golang-migrate/migrate/source/file",
     "github.com/kelseyhightower/envconfig",
     "github.com/nlopes/slack",
     "github.com/pkg/errors",
