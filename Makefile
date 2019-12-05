@@ -29,7 +29,7 @@ deps:
 	@docker-compose exec slack-grand-race dep ensure
 
 dev-up:
-	@docker-compose up -d
+	@docker-compose up -d --build
 	@docker-compose logs -f slack-grand-race
 
 ssh:
