@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNewMessageFromEvent(t *testing.T) {
+func TestMessage(t *testing.T) {
 	slackMsg := slack.Msg{
 		User:      "I4GH53KAS9",
 		Channel:   "G72NC8JS98",
@@ -20,16 +20,16 @@ func TestNewMessageFromEvent(t *testing.T) {
 
 	message := NewMessageFromEvent(&slackMessageEvent)
 
-	if message.User != slackMsg.User {
+	if message.GetUser() != slackMsg.User {
 		t.Error("User is not set correctly")
 	}
-	if message.Channel != slackMsg.Channel {
+	if message.GetChannel() != slackMsg.Channel {
 		t.Error("Channel is not set correctly")
 	}
-	if message.Content != slackMsg.Text {
+	if message.getContent() != slackMsg.Text {
 		t.Error("Message text content is not set correctly")
 	}
-	if message.Timestamp != slackMsg.Timestamp {
+	if message.GetTimestamp() != slackMsg.Timestamp {
 		t.Error("Timestamp is not set correctly")
 	}
 }
