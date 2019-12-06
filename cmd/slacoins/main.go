@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/isfonzar/slack-grand-race/pkg/message"
 
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/postgres"
@@ -53,7 +54,8 @@ func main() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
-				fields := []interface{}{"message", ev}
+				msg := message.NewMessageFromEvent(ev)
+				fields := []interface{}{"message", msg}
 				log.Debugw("Message received", fields...)
 			case *slack.RTMError:
 				fields := []interface{}{"error", ev.Error()}
