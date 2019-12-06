@@ -23,6 +23,19 @@ func NewHandler(logger Logger) Handler {
 	return Handler{logger}
 }
 
-func (h Handler) HandleMessage(message Message) {
+func (h Handler) HandleMessage(msg Message) error {
+	fields := []interface{}{"message", msg}
+	h.Logger.Debugw("Message received", fields...)
 
+	// Discard messages from the bot itself
+
+	// Discard messages from other bots
+
+	// Is the message an action call?
+
+	// Does the message contain a banned word?
+
+	// Does the message contain a praised word?
+
+	// Should the message receive a reward?
 }

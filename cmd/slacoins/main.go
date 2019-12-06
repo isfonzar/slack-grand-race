@@ -43,6 +43,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Handlers
+	// @todo one big handler to handle everything?
+	msgHandler := message.NewHandler(log)
+
 	// Slack
 	// @todo improve and abstract this whole slack thingy
 	api := slack.New(conf.SlackToken)
@@ -55,8 +59,11 @@ func main() {
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
 				msg := message.NewMessageFromEvent(ev)
-				fields := []interface{}{"message", msg}
-				log.Debugw("Message received", fields...)
+
+				err := msgHandler.HandleMessage(msg)
+				if err != nil {
+					log.Error(err)
+				}
 			case *slack.RTMError:
 				fields := []interface{}{"error", ev.Error()}
 				log.Errorw("Error", fields...)
