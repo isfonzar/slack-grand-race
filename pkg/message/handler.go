@@ -38,4 +38,6 @@ func (h Handler) HandleMessage(msg Message) error {
 	// Does the message contain a praised word?
 
 	// Should the message receive a reward?
+
+	return nil
 }
