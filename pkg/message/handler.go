@@ -1,7 +1,7 @@
 package message
 
 type (
-	Logger interface {
+	logger interface {
 		Debug(args ...interface{})
 		Info(args ...interface{})
 		Warn(args ...interface{})
@@ -15,21 +15,21 @@ type (
 	}
 
 	Handler struct {
-		Logger
+		logger
 	}
 )
 
-func NewHandler(logger Logger) Handler {
+// NewHandler returns a new message handler
+func NewHandler(logger logger) Handler {
 	return Handler{logger}
 }
 
+// HandleMessage handles a message
 func (h Handler) HandleMessage(msg Message) error {
 	fields := []interface{}{"message", msg}
-	h.Logger.Debugw("Message received", fields...)
+	h.logger.Debugw("Message received", fields...)
 
-	// Discard messages from the bot itself
-
-	// Discard messages from other bots
+	// Discard messages from bots (including itself)
 
 	// Is the message an action call?
 
