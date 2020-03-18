@@ -1,6 +1,9 @@
 version: '3'
 services:
   slack-grand-race:
+    restart: always
+    depends_on:
+      - postgres
     build:
       context: .
       dockerfile: ./Dockerfile.dev
