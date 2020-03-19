@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
 	"github.com/slack-go/slack"
@@ -54,6 +55,9 @@ func (h *Handler) GetUser(id string) (*domain.User, error) {
 		if err := h.storage.Create(su.Id, su.Name); err != nil {
 			return u, fmt.Errorf("%w: %v", ErrCreateUser, err)
 		}
+
+		// Wait so it does not break the select
+		time.Sleep(3 * time.Second)
 
 		u, err := h.storage.Get(su.Id)
 		if err != nil || u == nil {
