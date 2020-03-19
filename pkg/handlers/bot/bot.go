@@ -30,6 +30,12 @@ var (
 	acceptedBalance = map[string]bool{
 		"tabela": true,
 	}
+
+	acceptedHelp = map[string]bool{
+		"help":  true,
+		"ajuda": true,
+		"?":     true,
+	}
 )
 
 func NewHandler(m Messager, rs RankingStorage) *Handler {
@@ -71,6 +77,16 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 			response += domain.ChicoinEmoji
 			response += "\n"
 		}
+
+		h.m.SendMessage(response, msg)
+
+		return nil
+	}
+	if acceptedHelp[text] {
+		var response string
+
+		response += "Comandos disponiveis:\n"
+		response += "- tabela: Mostra o ranking atual\n"
 
 		h.m.SendMessage(response, msg)
 
