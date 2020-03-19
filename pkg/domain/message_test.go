@@ -3,7 +3,7 @@ package domain
 import (
 	"testing"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 func TestNewMessageFromSlack(t *testing.T) {

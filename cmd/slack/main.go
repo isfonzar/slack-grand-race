@@ -14,7 +14,7 @@ import (
 	"github.com/isfonzar/slack-grand-race/pkg/logs"
 	"github.com/isfonzar/slack-grand-race/pkg/message"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"go.uber.org/zap"
 )
 

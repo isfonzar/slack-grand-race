@@ -32,6 +32,13 @@ dev-up:
 	@docker-compose up -d
 	@docker-compose logs -f slack-grand-race
 
+up:
+	@docker-compose up -d
+	@docker-compose logs -f slack-grand-race
+
+down:
+	@docker-compose down
+
 ssh:
 	@docker-compose exec slack-grand-race /bin/sh
 
