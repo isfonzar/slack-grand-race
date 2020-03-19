@@ -25,20 +25,22 @@ func (epm *EnvProcessorMock) EnvProcessFuncMock(prefix string, spec interface{})
 // TestLoadEnvWithEnvConfigLibrary tests the load of config variables using kelseyhightower/envconfig envconfig.Process()
 func TestLoadEnvWithEnvConfigLibrary(t *testing.T) {
 	var tests = []struct {
-		debug      bool
-		slackToken string
-		dbName     string
-		dbUser     string
-		dbPass     string
-		dbHost     string
+		debug        bool
+		debugChannel string
+		slackToken   string
+		dbName       string
+		dbUser       string
+		dbPass       string
+		dbHost       string
 	}{
-		{true, "slack-token", "db_name", "db_user", "db_pass", "db_host"},
+		{true, "G5PN6UA6B", "slack-token", "db_name", "db_user", "db_pass", "db_host"},
 	}
 
 	for _, test := range tests {
 		var configMock = &Config{
-			Debug:      test.debug,
-			SlackToken: test.slackToken,
+			Debug:        test.debug,
+			DebugChannel: test.debugChannel,
+			SlackToken:   test.slackToken,
 			DB: struct {
 				DatabaseName string `envconfig:"POSTGRES_DB" default:""`
 				Host         string `envconfig:"POSTGRES_HOST" default:""`
@@ -53,6 +55,7 @@ func TestLoadEnvWithEnvConfigLibrary(t *testing.T) {
 		}
 
 		setEnvVariable(t, "DEBUG", strconv.FormatBool(test.debug))
+		setEnvVariable(t, "DEBUG_CHANNEL", test.debugChannel)
 		setEnvVariable(t, "SLACK_TOKEN", test.slackToken)
 		setEnvVariable(t, "POSTGRES_DB", test.dbName)
 		setEnvVariable(t, "POSTGRES_HOST", test.dbHost)

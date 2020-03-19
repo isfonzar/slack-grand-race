@@ -27,6 +27,6 @@ func (h *Handler) AddReaction(msg *domain.Message, reaction domain.Reaction) err
 	return h.sl.AddReaction(string(reaction), slack.NewRefToMessage(msg.Channel, msg.Timestamp))
 }
 
-func (h *Handler) SendMessage(text string, msg *domain.Message) {
-	h.sl.SendMessage(h.sl.NewOutgoingMessage(text, msg.Channel))
+func (h *Handler) SendMessage(text string, channel string) {
+	h.sl.SendMessage(h.sl.NewOutgoingMessage(text, channel))
 }

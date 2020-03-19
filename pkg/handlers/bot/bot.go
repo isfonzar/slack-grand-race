@@ -11,12 +11,14 @@ import (
 
 type (
 	Handler struct {
-		m  Messager
-		rs RankingStorage
+		debug        bool
+		debugChannel string
+		m            Messager
+		rs           RankingStorage
 	}
 
 	Messager interface {
-		SendMessage(text string, msg *domain.Message)
+		SendMessage(text string, channel string)
 	}
 
 	RankingStorage interface {
@@ -38,10 +40,12 @@ var (
 	}
 )
 
-func NewHandler(m Messager, rs RankingStorage) *Handler {
+func NewHandler(debug bool, debugChannel string, m Messager, rs RankingStorage) *Handler {
 	return &Handler{
-		m:  m,
-		rs: rs,
+		debug:        debug,
+		debugChannel: debugChannel,
+		m:            m,
+		rs:           rs,
 	}
 }
 
@@ -58,6 +62,11 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		return nil
 	}
 
+	channel := msg.Channel
+	if h.debug && h.debugChannel != "" {
+		channel = h.debugChannel
+	}
+
 	text := msg.Content
 	text = strings.TrimPrefix(text, prefix)
 	text = strings.TrimSpace(text)
@@ -72,13 +81,13 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		var response string
 		for i := 0; i < len(ranking); i++ {
 			response += "@" + ranking[i].Name
-			response += " "
+			response += ": "
 			response += strconv.Itoa(ranking[i].Balance)
 			response += domain.ChicoinEmoji
 			response += "\n"
 		}
 
-		h.m.SendMessage(response, msg)
+		h.m.SendMessage(response, channel)
 
 		return nil
 	}
@@ -89,7 +98,7 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		response += "- tabela: Mostra o ranking atual\n\n"
 		response += "Novos comandos em breve!"
 
-		h.m.SendMessage(response, msg)
+		h.m.SendMessage(response, channel)
 
 		return nil
 	}

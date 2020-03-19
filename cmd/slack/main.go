@@ -91,7 +91,7 @@ func main() {
 	coinHandler := coins.NewHandler(conf.Debug, userStorage, slackCommunicator)
 	msgHandler := message.NewHandler(coinHandler, logger)
 	userHandler := user.NewHandler(rtm, userStorage)
-	botHandler := bot.NewHandler(slackCommunicator, userStorage)
+	botHandler := bot.NewHandler(conf.Debug, conf.DebugChannel, slackCommunicator, userStorage)
 
 	for {
 		select {
