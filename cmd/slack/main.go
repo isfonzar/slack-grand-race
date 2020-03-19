@@ -11,6 +11,7 @@ import (
 	"github.com/isfonzar/slack-grand-race/internal/repository/postgres"
 	"github.com/isfonzar/slack-grand-race/pkg/config"
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
+	"github.com/isfonzar/slack-grand-race/pkg/handlers/user"
 	"github.com/isfonzar/slack-grand-race/pkg/logs"
 	"github.com/isfonzar/slack-grand-race/pkg/message"
 	"github.com/kelseyhightower/envconfig"
@@ -72,13 +73,14 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	// Handlers
-	msgHandler := message.NewHandler(postgres.NewUsersStorage(db))
-
 	// Slack
 	api := slack.New(conf.SlackToken)
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
+
+	// Handlers
+	msgHandler := message.NewHandler()
+	userHandler := user.NewHandler(rtm, postgres.NewUsersStorage(db))
 
 	for {
 		select {
@@ -88,8 +90,8 @@ func main() {
 				// Get message
 				m := domain.NewMessageFromSlack(ev)
 
-				// Get slack user
-				u, err := domain.NewUserFromSlack(rtm, ev.Msg.User)
+				// Get user
+				u, err := userHandler.GetUser(ev.Msg.User)
 				if err != nil {
 					logger.Fatalw("could not get user",
 						"error", err,

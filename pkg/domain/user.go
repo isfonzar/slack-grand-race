@@ -1,37 +1,10 @@
 package domain
 
-import (
-	"errors"
-	"fmt"
-
-	"github.com/slack-go/slack"
-)
-
 type (
 	User struct {
-		ID   string
-		Name string
-	}
-
-	UserInfo interface {
-		GetUserInfo(user string) (*slack.User, error)
+		Id       string
+		Name     string
+		Balance  int
+		IsActive bool
 	}
 )
-
-var (
-	ErrUnableToGetUserInfo = errors.New("NewUserFromSlack could not get user info")
-)
-
-func NewUserFromSlack(info UserInfo, id string) (*User, error) {
-	var user User
-
-	su, err := info.GetUserInfo(id)
-	if err != nil {
-		return &user, fmt.Errorf("%w: %v", ErrUnableToGetUserInfo, err)
-	}
-
-	return &User{
-		ID:   su.ID,
-		Name: su.Name,
-	}, nil
-}

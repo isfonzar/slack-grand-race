@@ -1,4 +1,4 @@
-package domain
+package user
 
 import (
 	"errors"
@@ -18,7 +18,7 @@ func (uim *UserInfoMock) GetUserInfo(user string) (*slack.User, error) {
 	return uim.u, uim.err
 }
 
-func TestNewUserFromSlack(t *testing.T) {
+func TestNewFromSlack(t *testing.T) {
 	var tests = []struct {
 		id          string
 		name        string
@@ -40,7 +40,7 @@ func TestNewUserFromSlack(t *testing.T) {
 			err: test.slackErr,
 		}
 
-		u, err := NewUserFromSlack(uim, test.id)
+		u, err := NewFromSlack(uim, test.id)
 		if !errors.Is(err, test.expectedErr) {
 			t.Errorf("NewUserFromSlack() returned an unexpected error, got: %v, expected: %v", err, test.expectedErr)
 		}
