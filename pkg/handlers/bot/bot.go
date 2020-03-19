@@ -67,41 +67,53 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		channel = h.debugChannel
 	}
 
-	text := msg.Content
+	text := h.getFormattedMessage(prefix, msg.Content)
+	if acceptedBalance[text] {
+		return h.sendRanking(channel)
+	}
+	if acceptedHelp[text] {
+		return h.sendHelpResponse(channel)
+	}
+
+	return nil
+}
+
+func (h *Handler) getFormattedMessage(prefix, text string) string {
 	text = strings.TrimPrefix(text, prefix)
 	text = strings.TrimSpace(text)
 	text = strings.ToLower(text)
 
-	if acceptedBalance[text] {
-		ranking, err := h.rs.GetRanking()
-		if err != nil {
-			return fmt.Errorf("%w : %v", UnableToGetRankingError, err)
-		}
+	return text
+}
 
-		var response string
-		for i := 0; i < len(ranking); i++ {
-			response += "@" + ranking[i].Name
-			response += ": "
-			response += strconv.Itoa(ranking[i].Balance)
-			response += domain.ChicoinEmoji
-			response += "\n"
-		}
-
-		h.m.SendMessage(response, channel)
-
-		return nil
+func (h *Handler) sendRanking(channel string) error {
+	ranking, err := h.rs.GetRanking()
+	if err != nil {
+		return fmt.Errorf("%w : %v", UnableToGetRankingError, err)
 	}
-	if acceptedHelp[text] {
-		var response string
 
-		response += "Comandos disponiveis:\n"
-		response += "- tabela: Mostra o ranking atual\n\n"
-		response += "Novos comandos em breve!"
-
-		h.m.SendMessage(response, channel)
-
-		return nil
+	var response string
+	for i := 0; i < len(ranking); i++ {
+		response += "@" + ranking[i].Name
+		response += ": "
+		response += strconv.Itoa(ranking[i].Balance)
+		response += domain.ChicoinEmoji
+		response += "\n"
 	}
+
+	h.m.SendMessage(response, channel)
+
+	return nil
+}
+
+func (h *Handler) sendHelpResponse(channel string) error {
+	var response string
+
+	response += "Comandos disponiveis:\n"
+	response += "- tabela: Mostra o ranking atual\n\n"
+	response += "Novos comandos em breve!"
+
+	h.m.SendMessage(response, channel)
 
 	return nil
 }
