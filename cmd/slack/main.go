@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/isfonzar/slack-grand-race/pkg/config"
-	"github.com/isfonzar/slack-grand-race/pkg/logs"
-	"github.com/isfonzar/slack-grand-race/pkg/message"
-
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
+	"github.com/isfonzar/slack-grand-race/internal/repository/postgres"
+	"github.com/isfonzar/slack-grand-race/pkg/config"
+	"github.com/isfonzar/slack-grand-race/pkg/domain"
+	"github.com/isfonzar/slack-grand-race/pkg/logs"
+	"github.com/isfonzar/slack-grand-race/pkg/message"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/nlopes/slack"
 	"go.uber.org/zap"
@@ -23,8 +24,6 @@ const (
 )
 
 func main() {
-	fmt.Println("Starting Slack Grand Race")
-
 	// Configuration
 	conf, err := config.LoadEnv(envconfig.Process)
 	if err != nil {
@@ -74,11 +73,9 @@ func main() {
 	}
 
 	// Handlers
-	// @todo one big handler to handle everything?
-	msgHandler := message.NewHandler(logger)
+	msgHandler := message.NewHandler(postgres.NewUsersStorage(db))
 
 	// Slack
-	// @todo improve and abstract this whole slack thingy
 	api := slack.New(conf.SlackToken)
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
@@ -88,11 +85,25 @@ func main() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
-				msg := message.NewMessageFromEvent(ev)
+				// Get message
+				m := domain.NewMessageFromSlack(ev)
 
-				err := msgHandler.HandleMessage(msg)
+				// Get slack user
+				u, err := domain.NewUserFromSlack(rtm, ev.User)
 				if err != nil {
-					logger.Error(err)
+					logger.Warnw("could not get user",
+						"error", err,
+						"user_id", m.User,
+						"user", u,
+					)
+				}
+
+				if err := msgHandler.Process(m, u); err != nil {
+					logger.Warnw("could not process message",
+						"error", err,
+						"message", m,
+						"user", u,
+					)
 				}
 			case *slack.RTMError:
 				fields := []interface{}{"error", ev.Error()}
