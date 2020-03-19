@@ -10,9 +10,5 @@ RUN apk update && apk add make git alpine-sdk
 ENV GO111MODULE off
 
 RUN go get -u -v github.com/githubnemo/CompileDaemon
-RUN go get -u -v github.com/DATA-DOG/godog/cmd/godog
-
-# Download deps
-make deps
 
 CMD CompileDaemon -build="make build" -command="out/sgr"

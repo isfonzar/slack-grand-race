@@ -89,11 +89,11 @@ func main() {
 				m := domain.NewMessageFromSlack(ev)
 
 				// Get slack user
-				u, err := domain.NewUserFromSlack(rtm, ev.User)
+				u, err := domain.NewUserFromSlack(rtm, ev.Msg.User)
 				if err != nil {
-					logger.Warnw("could not get user",
+					logger.Fatalw("could not get user",
 						"error", err,
-						"user_id", m.User,
+						"user_id", ev.Msg.User,
 						"user", u,
 					)
 				}
