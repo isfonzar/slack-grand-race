@@ -9,12 +9,18 @@ import (
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
 )
 
+const (
+	priceToBuyVideo = 1
+)
+
 type (
 	Handler struct {
 		debug        bool
 		debugChannel string
 		m            Messager
 		rs           RankingStorage
+		yt           YoutubeGetter
+		balance      BalanceModifier
 	}
 
 	Messager interface {
@@ -24,10 +30,20 @@ type (
 	RankingStorage interface {
 		GetRanking() ([]domain.User, error)
 	}
+
+	YoutubeGetter interface {
+		GetVideo(q string) (string, error)
+	}
+
+	BalanceModifier interface {
+		IncrementBalance(id string, inc int) error
+	}
 )
 
 var (
-	UnableToGetRankingError = errors.New("could not get ranking")
+	UnableToGetRankingError    = errors.New("could not get ranking")
+	UnableToGetVideoError      = errors.New("could not get video")
+	UnableToModifyBalanceError = errors.New("could not modify balance")
 
 	acceptedBalance = map[string]bool{
 		"tabela": true,
@@ -38,14 +54,18 @@ var (
 		"ajuda": true,
 		"?":     true,
 	}
+
+	acceptedVideo = "youtube"
 )
 
-func NewHandler(debug bool, debugChannel string, m Messager, rs RankingStorage) *Handler {
+func NewHandler(debug bool, debugChannel string, m Messager, rs RankingStorage, yt YoutubeGetter, balance BalanceModifier) *Handler {
 	return &Handler{
 		debug:        debug,
 		debugChannel: debugChannel,
 		m:            m,
 		rs:           rs,
+		yt:           yt,
+		balance:      balance,
 	}
 }
 
@@ -73,6 +93,9 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 	}
 	if acceptedHelp[text] {
 		return h.sendHelpResponse(channel)
+	}
+	if strings.Contains(text, acceptedVideo) {
+		return h.sendVideo(user, text, channel)
 	}
 
 	return nil
@@ -114,6 +137,38 @@ func (h *Handler) sendHelpResponse(channel string) error {
 	response += "Novos comandos em breve!"
 
 	h.m.SendMessage(response, channel)
+
+	return nil
+}
+
+func (h *Handler) sendVideo(user *domain.User, query, channel string) error {
+	query = strings.TrimPrefix(query, acceptedVideo)
+	query = strings.TrimSpace(query)
+	query = strings.ToLower(query)
+
+	if query == "" {
+		h.m.SendMessage(fmt.Sprintf("Por apenas %d %s voce pode comprar um video!\nBasta escrever: \n```@Chicoin youtube palavra-chave```", priceToBuyVideo, domain.ChicoinEmoji), channel)
+
+		return nil
+	}
+
+	if user.Balance < priceToBuyVideo {
+		h.m.SendMessage(fmt.Sprintf("Desculpe, *%s*. Voce *nao* tem %s suficientes para comprar um video. :disappointed:", user.Name, domain.ChicoinEmoji), channel)
+
+		return nil
+	}
+
+	err := h.balance.IncrementBalance(user.Id, -priceToBuyVideo)
+	if err != nil {
+		return fmt.Errorf("%w : %v", UnableToModifyBalanceError, err)
+	}
+
+	url, err := h.yt.GetVideo(query)
+	if err != nil {
+		return fmt.Errorf("%w : %v", UnableToGetVideoError, err)
+	}
+
+	h.m.SendMessage(fmt.Sprintf("*%s* comprou um video por *%d %s*.\n\n%s", user.Name, priceToBuyVideo, domain.ChicoinEmoji, url), channel)
 
 	return nil
 }

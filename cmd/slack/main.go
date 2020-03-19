@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -17,10 +19,13 @@ import (
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/message"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/user"
 	slackHandler "github.com/isfonzar/slack-grand-race/pkg/infrastructure/slack"
+	"github.com/isfonzar/slack-grand-race/pkg/infrastructure/youtube"
 	"github.com/isfonzar/slack-grand-race/pkg/logs"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/slack-go/slack"
 	"go.uber.org/zap"
+	"google.golang.org/api/option"
+	yt "google.golang.org/api/youtube/v3"
 )
 
 const (
@@ -77,6 +82,13 @@ func main() {
 		logger.Fatal(err)
 	}
 
+	// Youtube
+	ctx := context.Background()
+	youtubeService, err := yt.NewService(ctx, option.WithAPIKey(conf.YoutubeKey))
+	if err != nil {
+		log.Fatalf("could not start youtube service: %v", err)
+	}
+
 	// Slack
 	api := slack.New(conf.SlackToken)
 	rtm := api.NewRTM()
@@ -85,13 +97,15 @@ func main() {
 	// Storages
 	userStorage := postgres.NewUsersStorage(db)
 
-	// Handlers
+	// Infrastructure
 	slackCommunicator := slackHandler.NewHandler(rtm)
+	youtubeHandler := youtube.NewHandler(youtubeService)
 
+	// Handlers
 	coinHandler := coins.NewHandler(conf.Debug, userStorage, slackCommunicator)
 	msgHandler := message.NewHandler(coinHandler, logger)
 	userHandler := user.NewHandler(rtm, userStorage)
-	botHandler := bot.NewHandler(conf.Debug, conf.DebugChannel, slackCommunicator, userStorage)
+	botHandler := bot.NewHandler(conf.Debug, conf.DebugChannel, slackCommunicator, userStorage, youtubeHandler, userStorage)
 
 	for {
 		select {

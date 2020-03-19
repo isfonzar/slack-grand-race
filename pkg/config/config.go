@@ -12,6 +12,7 @@ type (
 			User         string `envconfig:"POSTGRES_USER" default:""`
 			Password     string `envconfig:"POSTGRES_PASSWORD" default:""`
 		}
+		YoutubeKey string `envconfig:"YOUTUBE_KEY" default:""`
 	}
 
 	// EnvProcessFunc is the environment variable processor function

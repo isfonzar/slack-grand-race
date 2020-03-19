@@ -25,9 +25,7 @@ type (
 )
 
 var (
-	InexistentMessageError = errors.New("message does not exist")
-	InexistentUserError    = errors.New("user does not exist")
-	CouldNotGiveCoinError  = errors.New("could not give coin")
+	CouldNotGiveCoinError = errors.New("could not give coin")
 )
 
 func NewHandler(cg CoinGiver, l Logger) *Handler {
@@ -38,11 +36,9 @@ func NewHandler(cg CoinGiver, l Logger) *Handler {
 }
 
 func (h *Handler) Process(msg *domain.Message, user *domain.User) error {
-	if msg == nil {
-		return InexistentMessageError
-	}
-	if user == nil {
-		return InexistentUserError
+	if msg == nil ||
+		user == nil {
+		return nil
 	}
 
 	h.log.Infow("processing message",

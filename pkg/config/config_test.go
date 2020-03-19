@@ -32,8 +32,9 @@ func TestLoadEnvWithEnvConfigLibrary(t *testing.T) {
 		dbUser       string
 		dbPass       string
 		dbHost       string
+		youtubeKey   string
 	}{
-		{true, "G5PN6UA6B", "slack-token", "db_name", "db_user", "db_pass", "db_host"},
+		{true, "G5PN6UA6B", "slack-token", "db_name", "db_user", "db_pass", "db_host", "youtube-key"},
 	}
 
 	for _, test := range tests {
@@ -52,6 +53,7 @@ func TestLoadEnvWithEnvConfigLibrary(t *testing.T) {
 				test.dbUser,
 				test.dbPass,
 			},
+			YoutubeKey: test.youtubeKey,
 		}
 
 		setEnvVariable(t, "DEBUG", strconv.FormatBool(test.debug))
@@ -61,6 +63,7 @@ func TestLoadEnvWithEnvConfigLibrary(t *testing.T) {
 		setEnvVariable(t, "POSTGRES_HOST", test.dbHost)
 		setEnvVariable(t, "POSTGRES_USER", test.dbUser)
 		setEnvVariable(t, "POSTGRES_PASSWORD", test.dbPass)
+		setEnvVariable(t, "YOUTUBE_KEY", test.youtubeKey)
 
 		c, err := LoadEnv(envconfig.Process)
 		if err != nil {
