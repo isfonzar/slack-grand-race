@@ -11,8 +11,10 @@ import (
 	"github.com/isfonzar/slack-grand-race/internal/repository/postgres"
 	"github.com/isfonzar/slack-grand-race/pkg/config"
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
+	"github.com/isfonzar/slack-grand-race/pkg/handlers/coins"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/message"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/user"
+	slackHandler "github.com/isfonzar/slack-grand-race/pkg/infrastructure/slack"
 	"github.com/isfonzar/slack-grand-race/pkg/logs"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/slack-go/slack"
@@ -78,9 +80,15 @@ func main() {
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
+	// Storages
+	userStorage := postgres.NewUsersStorage(db)
+
 	// Handlers
-	msgHandler := message.NewHandler()
-	userHandler := user.NewHandler(rtm, postgres.NewUsersStorage(db))
+	slackCommunicator := slackHandler.NewHandler(rtm)
+
+	coinHandler := coins.NewHandler(userStorage, slackCommunicator)
+	msgHandler := message.NewHandler(coinHandler, logger)
+	userHandler := user.NewHandler(rtm, userStorage)
 
 	for {
 		select {
@@ -101,7 +109,7 @@ func main() {
 				}
 
 				if err := msgHandler.Process(m, u); err != nil {
-					logger.Warnw("could not process message",
+					logger.Fatalw("could not process message",
 						"error", err,
 						"message", m,
 						"user", u,

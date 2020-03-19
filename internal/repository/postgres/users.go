@@ -57,3 +57,17 @@ func (s *Storage) Create(id, name string) error {
 
 	return nil
 }
+
+func (s *Storage) IncrementBalance(id string, inc int) error {
+	query := `UPDATE users SET balance = balance + $1 WHERE id = $2`
+	_, err := s.db.Exec(
+		query,
+		inc,
+		id,
+	)
+	if err != nil {
+		return errors.Wrap(err, "IncrementBalance() could not exec query")
+	}
+
+	return nil
+}
