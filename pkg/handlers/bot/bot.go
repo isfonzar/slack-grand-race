@@ -86,7 +86,8 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		var response string
 
 		response += "Comandos disponiveis:\n"
-		response += "- tabela: Mostra o ranking atual\n"
+		response += "- tabela: Mostra o ranking atual\n\n"
+		response += "Novos comandos em breve!"
 
 		h.m.SendMessage(response, msg)
 
