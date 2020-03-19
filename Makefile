@@ -26,10 +26,10 @@ build:
 
 deps:
 	@printf "$(OK_COLOR)==> Downloading dependencies$(NO_COLOR)\n"
-	@docker-compose exec slack-grand-race dep ensure
+	@go mod vendor -v
 
 dev-up:
-	@docker-compose up -d --build
+	@docker-compose up -d
 	@docker-compose logs -f slack-grand-race
 
 ssh:
