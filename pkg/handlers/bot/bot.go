@@ -123,7 +123,7 @@ func (h *Handler) sendRanking(channel string) error {
 
 	var response string
 	for i := 0; i < len(ranking); i++ {
-		response += fmt.Sprintf("#%d ", i)
+		response += fmt.Sprintf("#%d ", i+1)
 		response += "@" + ranking[i].Name
 		response += ": "
 		response += strconv.Itoa(ranking[i].Balance)
