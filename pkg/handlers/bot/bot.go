@@ -98,7 +98,7 @@ func (h *Handler) Process(selfId string, msg *domain.Message, user *domain.User)
 		return h.sendVideo(user, text, channel)
 	}
 
-	return nil
+	return h.sendNotUnderstood(user, channel)
 }
 
 func (h *Handler) getFormattedMessage(prefix, text string) string {
@@ -107,6 +107,12 @@ func (h *Handler) getFormattedMessage(prefix, text string) string {
 	text = strings.ToLower(text)
 
 	return text
+}
+
+func (h *Handler) sendNotUnderstood(user *domain.User, channel string) error {
+	h.m.SendMessage(fmt.Sprintf("Desculpe, %s. Nao entendi o que voce quis dizer.\nCaso precise de ajude, basta enviar:\n```@Chicoin ajuda```", user.Name), channel)
+
+	return nil
 }
 
 func (h *Handler) sendRanking(channel string) error {
@@ -134,6 +140,7 @@ func (h *Handler) sendHelpResponse(channel string) error {
 
 	response += "Comandos disponiveis:\n"
 	response += "- tabela: Mostra o ranking atual\n\n"
+	response += fmt.Sprintf("- youtube: Compra um video no youtube por %d %s\n\n", priceToBuyVideo, domain.ChicoinEmoji)
 	response += "Novos comandos em breve!"
 
 	h.m.SendMessage(response, channel)
