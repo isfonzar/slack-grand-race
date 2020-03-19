@@ -54,7 +54,9 @@ func (h *Handler) Process(msg *domain.Message, user *domain.User) error {
 
 	v := rand.Intn(100)
 	if v == 0 {
-		// Give coin
+		h.log.Infow("giving coin by chance to user",
+			"user", user,
+		)
 		if err := h.cg.Give(msg, 1); err != nil {
 			return fmt.Errorf("%w : %v", CouldNotGiveCoinError, err)
 		}
