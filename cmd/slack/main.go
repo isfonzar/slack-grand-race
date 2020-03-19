@@ -95,6 +95,11 @@ func main() {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
+				// If user does not exist (like spoiler messages)
+				if ev.Msg.User == "" {
+					continue
+				}
+
 				// Get message
 				m := domain.NewMessageFromSlack(ev)
 
