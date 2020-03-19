@@ -9,8 +9,9 @@ import (
 
 type (
 	Handler struct {
-		us Storage
-		re Reactioner
+		debug bool
+		us    Storage
+		re    Reactioner
 	}
 
 	Reactioner interface {
@@ -27,16 +28,22 @@ var (
 	CouldNotAddReactionError = errors.New("could not add reaction")
 )
 
-func NewHandler(us Storage, re Reactioner) *Handler {
+func NewHandler(debug bool, us Storage, re Reactioner) *Handler {
 	return &Handler{
-		us: us,
-		re: re,
+		debug: debug,
+		us:    us,
+		re:    re,
 	}
 }
 
 func (h *Handler) Give(msg *domain.Message, amount int) error {
 	if err := h.us.IncrementBalance(msg.User, amount); err != nil {
 		return fmt.Errorf("%w : %v", CouldNotChangeBalance, err)
+	}
+
+	// If debug is set to true, do not send reactions
+	if h.debug {
+		return nil
 	}
 
 	if err := h.re.AddReaction(msg, domain.ChicoinReaction); err != nil {

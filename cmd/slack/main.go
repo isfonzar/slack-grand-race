@@ -86,7 +86,7 @@ func main() {
 	// Handlers
 	slackCommunicator := slackHandler.NewHandler(rtm)
 
-	coinHandler := coins.NewHandler(userStorage, slackCommunicator)
+	coinHandler := coins.NewHandler(conf.Debug, userStorage, slackCommunicator)
 	msgHandler := message.NewHandler(coinHandler, logger)
 	userHandler := user.NewHandler(rtm, userStorage)
 
