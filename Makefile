@@ -39,6 +39,11 @@ up: deps
 down:
 	@docker-compose down
 
+pull:
+	@git pull
+
+prod: down pull up
+
 ssh:
 	@docker-compose exec slack-grand-race /bin/sh
 
