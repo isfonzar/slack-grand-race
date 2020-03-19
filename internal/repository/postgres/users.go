@@ -2,10 +2,11 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
 	_ "github.com/lib/pq"
-	"github.com/pkg/errors"
 )
 
 type (
@@ -13,6 +14,11 @@ type (
 	Storage struct {
 		db *sql.DB
 	}
+)
+
+var (
+	QueryError = errors.New("could not run query")
+	ScanError  = errors.New("could not Scan() row")
 )
 
 // NewUsersStorage returns a new database storage
@@ -35,7 +41,7 @@ func (s *Storage) Get(id string) (*domain.User, error) {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
-		return &u, errors.Wrap(err, "Get() could not Scan() row")
+		return &u, fmt.Errorf("%w : %v", ScanError, err)
 	}
 
 	return &u, nil
@@ -52,7 +58,7 @@ func (s *Storage) Create(id, name string) error {
 		true,
 	)
 	if err != nil {
-		return errors.Wrap(err, "Create() could not exec query")
+		return fmt.Errorf("%w : %v", QueryError, err)
 	}
 
 	return nil
@@ -66,8 +72,30 @@ func (s *Storage) IncrementBalance(id string, inc int) error {
 		id,
 	)
 	if err != nil {
-		return errors.Wrap(err, "IncrementBalance() could not exec query")
+		return fmt.Errorf("%w : %v", QueryError, err)
 	}
 
 	return nil
+}
+
+func (s *Storage) GetRanking() ([]domain.User, error) {
+	query := `SELECT id, name, balance, is_active FROM users WHERE is_active = true ORDER BY balance DESC`
+	rows, err := s.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("%w : %v", QueryError, err)
+	}
+
+	defer rows.Close()
+
+	var users []domain.User
+
+	for rows.Next() {
+		u := domain.User{}
+		if err := rows.Scan(&u.Id, &u.Name, &u.Balance, &u.IsActive); err != nil {
+			return users, fmt.Errorf("%w : %v", ScanError, err)
+		}
+		users = append(users, u)
+	}
+
+	return users, nil
 }

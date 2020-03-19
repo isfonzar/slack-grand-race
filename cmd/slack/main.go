@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-migrate/migrate"
@@ -11,6 +12,7 @@ import (
 	"github.com/isfonzar/slack-grand-race/internal/repository/postgres"
 	"github.com/isfonzar/slack-grand-race/pkg/config"
 	"github.com/isfonzar/slack-grand-race/pkg/domain"
+	"github.com/isfonzar/slack-grand-race/pkg/handlers/bot"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/coins"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/message"
 	"github.com/isfonzar/slack-grand-race/pkg/handlers/user"
@@ -89,12 +91,16 @@ func main() {
 	coinHandler := coins.NewHandler(conf.Debug, userStorage, slackCommunicator)
 	msgHandler := message.NewHandler(coinHandler, logger)
 	userHandler := user.NewHandler(rtm, userStorage)
+	botHandler := bot.NewHandler(slackCommunicator, userStorage)
 
 	for {
 		select {
 		case msg := <-rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.MessageEvent:
+				info := rtm.GetInfo()
+				selfId := info.User.ID
+
 				// If user does not exist (like spoiler messages)
 				if ev.Msg.User == "" {
 					continue
@@ -104,7 +110,8 @@ func main() {
 				m := domain.NewMessageFromSlack(ev)
 
 				// Get user
-				u, err := userHandler.GetUser(ev.Msg.User)
+				userId := ev.Msg.User
+				u, err := userHandler.GetUser(userId)
 				if err != nil {
 					logger.Fatalw("could not get user",
 						"error", err,
@@ -113,6 +120,21 @@ func main() {
 					)
 				}
 
+				// Is the user calling the bot?
+				prefix := fmt.Sprintf("<@%s> ", selfId)
+				if userId != selfId && strings.HasPrefix(ev.Text, prefix) {
+					if err := botHandler.Process(selfId, m, u); err != nil {
+						logger.Fatalw("could not process call to bot",
+							"error", err,
+							"self_id", selfId,
+							"message", m,
+							"user", u,
+						)
+					}
+					continue
+				}
+
+				// Finally, process message
 				if err := msgHandler.Process(m, u); err != nil {
 					logger.Fatalw("could not process message",
 						"error", err,
