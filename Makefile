@@ -32,7 +32,7 @@ dev-up:
 	@docker-compose up -d
 	@docker-compose logs -f slack-grand-race
 
-up:
+up: deps
 	@docker-compose up -d
 	@docker-compose logs -f slack-grand-race
 
