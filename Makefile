@@ -28,11 +28,7 @@ deps:
 	@printf "$(OK_COLOR)==> Downloading dependencies$(NO_COLOR)\n"
 	@go mod vendor -v
 
-dev-up:
-	@docker-compose up -d
-	@docker-compose logs -f slack-grand-race
-
-up: deps
+up:
 	@docker-compose up -d
 	@docker-compose logs -f slack-grand-race
 
@@ -42,7 +38,8 @@ down:
 pull:
 	@git pull
 
-prod: down pull up
+prod: pull deps down up
+dev: down deps up
 
 ssh:
 	@docker-compose exec slack-grand-race /bin/sh
